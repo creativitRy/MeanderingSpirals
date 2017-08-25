@@ -71,12 +71,20 @@ var output = function(p)
 	const HEIGHT = 180;
 	
 	var image;
+	var gray = [];
+	var processed = [];
 	
 	p.setup = function()
 	{
 		p.createCanvas(WIDTH, HEIGHT);
 		
 		image = p.createImage(WIDTH, HEIGHT);
+		
+		for (var i = 0; i < WIDTH * HEIGHT; i++)
+		{
+			gray[i] = 0;
+			processed[i] = false;
+		}
 	};
 	
 	p.draw = function()
@@ -107,6 +115,11 @@ var output = function(p)
 				image.set(x, y, p.color(0));
 			}
 		}
+		for (var i = 0; i < WIDTH * HEIGHT; i++)
+		{
+			gray[i] = 0;
+			processed[i] = false;
+		}
 		
 		//1 and 2
 		var numPoints = p.floor(p.random(100, 500));
@@ -124,19 +137,73 @@ var output = function(p)
 					var xx = points[i].x + x;
 					var yy = points[i].y + y;
 					
-					if (xx < 0 || yy < 0 || xx >= WIDTH || yy >= HEIGHT)
+					if (isBad(xx, yy))
 						continue;
 					
 					if (x === -w || x === w || y === -h || y === h)
 					{
-						image.set(xx, yy, p.color(255));
+						set(xx, yy, 255);
+						//image.set(xx, yy, p.color(255));
 					}
 				}
 			}
 		}
 		
+		//3
+		for (var x = 0; x < WIDTH; x++)
+		{
+			for (var y = 0; y < HEIGHT; y++)
+			{
+				if (get(x, y) !== 255)
+				{
+					var area = flood(x, y);
+					console.log(area);
+				}
+			}
+		}
 		
+	}
+	
+	function flood(x, y)
+	{
+		if (isBad(x, y))
+			return 0;
 		
+		if (get(x, y) === 255)
+			return 0;
+		
+		process(x, y);
+		
+		return 1 +
+			flood(x - 1, y) +
+			flood(x + 1, y) +
+			flood(x, y - 1) +
+			flood(x, y + 1);
+	}
+	
+	function isBad(x, y)
+	{
+		return x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT;
+	}
+	
+	function get(x, y)
+	{
+		return gray[y * WIDTH + x];
+	}
+	
+	function set(x, y, value)
+	{
+		gray[y * WIDTH + x] = value;
+	}
+	
+	function isProcessed(x, y)
+	{
+		return processed[y * WIDTH + x];
+	}
+	
+	function process(x, y)
+	{
+		processed[y * WIDTH + x] = true;
 	}
 };
 
