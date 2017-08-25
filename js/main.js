@@ -59,11 +59,7 @@ var input = function(p)
 	{
 		p.background(0);
 		
-		if (changed)
-			change();
-		
 		p.image(image, 0, 0);
-		//p.rect(xSlider.value(), ySlider.value(), 50, 50);
 	};
 };
 
@@ -95,7 +91,6 @@ var output = function(p)
 		}
 		
 		p.image(image, 0, 0);
-		//p.rect(xSlider.value(), ySlider.value(), 50, 50);
 	};
 	
 	function processs()
@@ -104,15 +99,44 @@ var output = function(p)
 		if (image === undefined)
 			return;
 		
-		//1
-		var numPoints = p.floor(p.random(1000, 5000));
+		//clear
+		for (var x = 0; x < WIDTH; x++)
+		{
+			for (var y = 0; y < HEIGHT; y++)
+			{
+				image.set(x, y, p.color(0));
+			}
+		}
+		
+		//1 and 2
+		var numPoints = p.floor(p.random(100, 500));
 		var points = [];
 		for (var i = 0; i < numPoints; i++)
 		{
 			points[i] = p.createVector(p.floor(p.random(0, WIDTH)), p.floor(p.random(0, HEIGHT)));
-			image.set(points[i].x, points[i].y, p.color(255, 0, 0));
-			p.point(points[i].x, points[i].y);
+			var w = p.floor(p.map(prob[points[i].x][points[i].y], 0, 255, 25, 5) + p.random(-5, 5));
+			var h = p.floor(w + p.randomGaussian(0, 1));
+			
+			for (var x = -w; x <= w; x++)
+			{
+				for (var y = -h; y <= h; y++)
+				{
+					var xx = points[i].x + x;
+					var yy = points[i].y + y;
+					
+					if (xx < 0 || yy < 0 || xx >= WIDTH || yy >= HEIGHT)
+						continue;
+					
+					if (x === -w || x === w || y === -h || y === h)
+					{
+						image.set(xx, yy, p.color(255));
+					}
+				}
+			}
 		}
+		
+		
+		
 	}
 };
 
